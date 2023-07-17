@@ -3,7 +3,7 @@ import React from 'react';
 import _ from 'underscore';
 import lodashGet from 'lodash/get';
 import {PickerAvoidingView} from 'react-native-picker-select';
-import {FocusTrap} from 'focus-trap-react';
+import FocusTrap from 'focus-trap-react';
 import KeyboardAvoidingView from '../KeyboardAvoidingView';
 import CONST from '../../CONST';
 import styles from '../../styles/styles';
@@ -33,6 +33,8 @@ class ScreenWrapper extends React.Component {
         this.state = {
             didScreenTransitionEnd: false,
         };
+
+        this.myRef = React.createRef();
     }
 
     componentDidMount() {
@@ -81,6 +83,10 @@ class ScreenWrapper extends React.Component {
     render() {
         const maxHeight = this.props.shouldEnableMaxHeight ? this.props.windowHeight : undefined;
 
+        console.log('props', this.props);
+        console.log('myRef', this.myRef.current, typeof this.myRef.current);
+        const activeFocusTrap = this.props.shouldEnableFocusTrap && this.myRef.current;
+
         return (
             <SafeAreaConsumer>
                 {({insets, paddingTop, paddingBottom, safeAreaPaddingBottomStyle}) => {
@@ -96,37 +102,47 @@ class ScreenWrapper extends React.Component {
                     }
 
                     return (
-                        <View
-                            style={[...this.props.style, styles.flex1, paddingStyle]}
-                            // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...(this.props.environment === CONST.ENVIRONMENT.DEV ? this.panResponder.panHandlers : {})}
+                        <FocusTrap
+                            active={activeFocusTrap}
+                            focusTrapOptions={{
+                                fallbackFocus: () => this.myRef.current,
+                                delayInitialFocus: true,
+                                clickOutsideDeactivates: true,
+                            }}
                         >
-                            <KeyboardAvoidingView
-                                style={[styles.w100, styles.h100, {maxHeight}]}
-                                behavior={this.props.keyboardAvoidingViewBehavior}
-                                enabled={this.props.shouldEnableKeyboardAvoidingView}
+                            <View
+                                style={[...this.props.style, styles.flex1, paddingStyle]}
+                                // eslint-disable-next-line react/jsx-props-no-spreading
+                                {...(this.props.environment === CONST.ENVIRONMENT.DEV ? this.panResponder.panHandlers : {})}
+                                ref={this.myRef}
                             >
-                                <PickerAvoidingView
-                                    style={styles.flex1}
-                                    enabled={this.props.shouldEnablePickerAvoiding}
+                                <KeyboardAvoidingView
+                                    style={[styles.w100, styles.h100, {maxHeight}]}
+                                    behavior={this.props.keyboardAvoidingViewBehavior}
+                                    enabled={this.props.shouldEnableKeyboardAvoidingView}
                                 >
-                                    <HeaderGap />
-                                    {this.props.environment === CONST.ENVIRONMENT.DEV && <TestToolsModal />}
-                                    {this.props.environment === CONST.ENVIRONMENT.DEV && <CustomDevMenu />}
-                                    {
-                                        // If props.children is a function, call it to provide the insets to the children.
-                                        _.isFunction(this.props.children)
-                                            ? this.props.children({
-                                                  insets,
-                                                  safeAreaPaddingBottomStyle,
-                                                  didScreenTransitionEnd: this.state.didScreenTransitionEnd,
-                                              })
-                                            : this.props.children
-                                    }
-                                    {this.props.isSmallScreenWidth && this.props.shouldShowOfflineIndicator && <OfflineIndicator />}
-                                </PickerAvoidingView>
-                            </KeyboardAvoidingView>
-                        </View>
+                                    <PickerAvoidingView
+                                        style={styles.flex1}
+                                        enabled={this.props.shouldEnablePickerAvoiding}
+                                    >
+                                        <HeaderGap />
+                                        {this.props.environment === CONST.ENVIRONMENT.DEV && <TestToolsModal />}
+                                        {this.props.environment === CONST.ENVIRONMENT.DEV && <CustomDevMenu />}
+                                        {
+                                            // If props.children is a function, call it to provide the insets to the children.
+                                            _.isFunction(this.props.children)
+                                                ? this.props.children({
+                                                      insets,
+                                                      safeAreaPaddingBottomStyle,
+                                                      didScreenTransitionEnd: this.state.didScreenTransitionEnd,
+                                                  })
+                                                : this.props.children
+                                        }
+                                        {this.props.isSmallScreenWidth && this.props.shouldShowOfflineIndicator && <OfflineIndicator />}
+                                    </PickerAvoidingView>
+                                </KeyboardAvoidingView>
+                            </View>
+                        </FocusTrap>
                     );
                 }}
             </SafeAreaConsumer>
