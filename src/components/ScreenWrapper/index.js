@@ -3,6 +3,7 @@ import React from 'react';
 import _ from 'underscore';
 import lodashGet from 'lodash/get';
 import {PickerAvoidingView} from 'react-native-picker-select';
+import {FocusTrap} from 'focus-trap-react';
 import KeyboardAvoidingView from '../KeyboardAvoidingView';
 import CONST from '../../CONST';
 import styles from '../../styles/styles';

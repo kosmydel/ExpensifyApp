@@ -80,6 +80,7 @@
     "domhandler": "^4.3.0",
     "expensify-common": "git+ssh://git@github.com/Expensify/expensify-common.git#0c685f835b809395ef6adf0799ac171cba03a4ba",
     "fbjs": "^3.0.2",
+    "focus-trap-react": "^10.2.1",
     "htmlparser2": "^7.2.0",
     "jest-when": "^3.5.2",
     "localforage": "^1.10.0",

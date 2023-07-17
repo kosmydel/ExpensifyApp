@@ -6,6 +6,7 @@ import {withOnyx} from 'react-native-onyx';
 import Str from 'expensify-common/lib/str';
 import lodashGet from 'lodash/get';
 import {parsePhoneNumber} from 'awesome-phonenumber';
+import FocusTrap from 'focus-trap-react';
 import * as Session from '../libs/actions/Session';
 import styles from '../styles/styles';
 import Text from '../components/Text';
@@ -139,94 +140,102 @@ function ProfilePage(props) {
                 title={props.translate('common.profile')}
                 onBackButtonPress={() => Navigation.goBack(ROUTES.HOME)}
             />
-            <View
-                pointerEvents="box-none"
-                style={[styles.containerWithSpaceBetween]}
+            <FocusTrap
+                focusTrapOptions={{
+                    onActivate: () => console.log('test'),
+                    onDeactivate: () => console.log('test'),
+                    clickOutsideDeactivates: true,
+                }}
             >
-                {hasMinimumDetails && (
-                    <ScrollView>
-                        <View style={styles.avatarSectionWrapper}>
-                            <AttachmentModal
-                                headerTitle={displayName}
-                                source={UserUtils.getFullSizeAvatar(avatar, accountID)}
-                                isAuthTokenRequired
-                                originalFileName={originalFileName}
-                            >
-                                {({show}) => (
-                                    <PressableWithoutFocus
-                                        style={[styles.noOutline]}
-                                        onPress={show}
-                                        accessibilityLabel={props.translate('common.profile')}
-                                        accessibilityRole={CONST.ACCESSIBILITY_ROLE.IMAGEBUTTON}
-                                    >
-                                        <OfflineWithFeedback pendingAction={lodashGet(details, 'pendingFields.avatar', null)}>
-                                            <Avatar
-                                                containerStyles={[styles.avatarLarge, styles.mb3]}
-                                                imageStyles={[styles.avatarLarge]}
-                                                source={UserUtils.getAvatar(avatar, accountID)}
-                                                size={CONST.AVATAR_SIZE.LARGE}
-                                            />
-                                        </OfflineWithFeedback>
-                                    </PressableWithoutFocus>
-                                )}
-                            </AttachmentModal>
-                            {Boolean(displayName) && (
-                                <Text
-                                    style={[styles.textHeadline, styles.mb6, styles.pre]}
-                                    numberOfLines={1}
+                <View
+                    pointerEvents="box-none"
+                    style={[styles.containerWithSpaceBetween]}
+                >
+                    {hasMinimumDetails && (
+                        <ScrollView>
+                            <View style={styles.avatarSectionWrapper}>
+                                <AttachmentModal
+                                    headerTitle={displayName}
+                                    source={UserUtils.getFullSizeAvatar(avatar, accountID)}
+                                    isAuthTokenRequired
+                                    originalFileName={originalFileName}
                                 >
-                                    {displayName}
-                                </Text>
+                                    {({show}) => (
+                                        <PressableWithoutFocus
+                                            style={[styles.noOutline]}
+                                            onPress={show}
+                                            accessibilityLabel={props.translate('common.profile')}
+                                            accessibilityRole={CONST.ACCESSIBILITY_ROLE.IMAGEBUTTON}
+                                        >
+                                            <OfflineWithFeedback pendingAction={lodashGet(details, 'pendingFields.avatar', null)}>
+                                                <Avatar
+                                                    containerStyles={[styles.avatarLarge, styles.mb3]}
+                                                    imageStyles={[styles.avatarLarge]}
+                                                    source={UserUtils.getAvatar(avatar, accountID)}
+                                                    size={CONST.AVATAR_SIZE.LARGE}
+                                                />
+                                            </OfflineWithFeedback>
+                                        </PressableWithoutFocus>
+                                    )}
+                                </AttachmentModal>
+                                {Boolean(displayName) && (
+                                    <Text
+                                        style={[styles.textHeadline, styles.mb6, styles.pre]}
+                                        numberOfLines={1}
+                                    >
+                                        {displayName}
+                                    </Text>
+                                )}
+                                {login ? (
+                                    <View style={[styles.mb6, styles.detailsPageSectionContainer, styles.w100]}>
+                                        <Text
+                                            style={[styles.textLabelSupporting, styles.mb1]}
+                                            numberOfLines={1}
+                                        >
+                                            {props.translate(isSMSLogin ? 'common.phoneNumber' : 'common.email')}
+                                        </Text>
+                                        <CommunicationsLink value={phoneOrEmail}>
+                                            <UserDetailsTooltip accountID={details.accountID}>
+                                                <Text numberOfLines={1}>{isSMSLogin ? props.formatPhoneNumber(phoneNumber) : login}</Text>
+                                            </UserDetailsTooltip>
+                                        </CommunicationsLink>
+                                    </View>
+                                ) : null}
+                                {pronouns ? (
+                                    <View style={[styles.mb6, styles.detailsPageSectionContainer]}>
+                                        <Text
+                                            style={[styles.textLabelSupporting, styles.mb1]}
+                                            numberOfLines={1}
+                                        >
+                                            {props.translate('profilePage.preferredPronouns')}
+                                        </Text>
+                                        <Text numberOfLines={1}>{pronouns}</Text>
+                                    </View>
+                                ) : null}
+                                {shouldShowLocalTime && <AutoUpdateTime timezone={timezone} />}
+                            </View>
+                            {!isCurrentUser && !Session.isAnonymousUser() && (
+                                <MenuItem
+                                    title={`${props.translate('common.message')}${displayName}`}
+                                    icon={Expensicons.ChatBubble}
+                                    onPress={() => Report.navigateToAndOpenReportWithAccountIDs([accountID])}
+                                    wrapperStyle={styles.breakAll}
+                                    shouldShowRightIcon
+                                />
                             )}
-                            {login ? (
-                                <View style={[styles.mb6, styles.detailsPageSectionContainer, styles.w100]}>
-                                    <Text
-                                        style={[styles.textLabelSupporting, styles.mb1]}
-                                        numberOfLines={1}
-                                    >
-                                        {props.translate(isSMSLogin ? 'common.phoneNumber' : 'common.email')}
-                                    </Text>
-                                    <CommunicationsLink value={phoneOrEmail}>
-                                        <UserDetailsTooltip accountID={details.accountID}>
-                                            <Text numberOfLines={1}>{isSMSLogin ? props.formatPhoneNumber(phoneNumber) : login}</Text>
-                                        </UserDetailsTooltip>
-                                    </CommunicationsLink>
-                                </View>
-                            ) : null}
-                            {pronouns ? (
-                                <View style={[styles.mb6, styles.detailsPageSectionContainer]}>
-                                    <Text
-                                        style={[styles.textLabelSupporting, styles.mb1]}
-                                        numberOfLines={1}
-                                    >
-                                        {props.translate('profilePage.preferredPronouns')}
-                                    </Text>
-                                    <Text numberOfLines={1}>{pronouns}</Text>
-                                </View>
-                            ) : null}
-                            {shouldShowLocalTime && <AutoUpdateTime timezone={timezone} />}
-                        </View>
-                        {!isCurrentUser && !Session.isAnonymousUser() && (
-                            <MenuItem
-                                title={`${props.translate('common.message')}${displayName}`}
-                                icon={Expensicons.ChatBubble}
-                                onPress={() => Report.navigateToAndOpenReportWithAccountIDs([accountID])}
-                                wrapperStyle={styles.breakAll}
-                                shouldShowRightIcon
-                            />
-                        )}
-                    </ScrollView>
-                )}
-                {!hasMinimumDetails && isLoading && <FullScreenLoadingIndicator style={styles.flex1} />}
-                {shouldShowBlockingView && (
-                    <BlockingView
-                        icon={Illustrations.ToddBehindCloud}
-                        iconWidth={variables.modalTopIconWidth}
-                        iconHeight={variables.modalTopIconHeight}
-                        title={props.translate('notFound.notHere')}
-                    />
-                )}
-            </View>
+                        </ScrollView>
+                    )}
+                    {!hasMinimumDetails && isLoading && <FullScreenLoadingIndicator style={styles.flex1} />}
+                    {shouldShowBlockingView && (
+                        <BlockingView
+                            icon={Illustrations.ToddBehindCloud}
+                            iconWidth={variables.modalTopIconWidth}
+                            iconHeight={variables.modalTopIconHeight}
+                            title={props.translate('notFound.notHere')}
+                        />
+                    )}
+                </View>
+            </FocusTrap>
         </ScreenWrapper>
     );
 }

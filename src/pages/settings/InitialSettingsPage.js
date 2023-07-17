@@ -4,6 +4,7 @@ import {ScrollView, View} from 'react-native';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import {withOnyx} from 'react-native-onyx';
+import FocusTrap from 'focus-trap-react';
 import CurrentUserPersonalDetailsSkeletonView from '../../components/CurrentUserPersonalDetailsSkeletonView';
 import {withNetwork} from '../../components/OnyxProvider';
 import styles from '../../styles/styles';
@@ -313,67 +314,75 @@ class InitialSettingsPage extends React.Component {
                             contentContainerStyle={safeAreaPaddingBottomStyle}
                             style={[styles.settingsPageBackground]}
                         >
-                            <View style={styles.w100}>
-                                {_.isEmpty(this.props.currentUserPersonalDetails) || _.isUndefined(this.props.currentUserPersonalDetails.displayName) ? (
-                                    <CurrentUserPersonalDetailsSkeletonView />
-                                ) : (
-                                    <View style={styles.avatarSectionWrapper}>
-                                        <Tooltip text={this.props.translate('common.profile')}>
+                            <FocusTrap
+                                focusTrapOptions={{
+                                    onActivate: () => console.log('test'),
+                                    onDeactivate: () => console.log('test'),
+                                    clickOutsideDeactivates: true,
+                                }}
+                            >
+                                <View style={styles.w100}>
+                                    {_.isEmpty(this.props.currentUserPersonalDetails) || _.isUndefined(this.props.currentUserPersonalDetails.displayName) ? (
+                                        <CurrentUserPersonalDetailsSkeletonView />
+                                    ) : (
+                                        <View style={styles.avatarSectionWrapper}>
+                                            <Tooltip text={this.props.translate('common.profile')}>
+                                                <PressableWithoutFeedback
+                                                    style={[styles.mb3]}
+                                                    onPress={this.openProfileSettings}
+                                                    accessibilityLabel={this.props.translate('common.profile')}
+                                                    accessibilityRole={CONST.ACCESSIBILITY_ROLE.BUTTON}
+                                                >
+                                                    <OfflineWithFeedback pendingAction={lodashGet(this.props.currentUserPersonalDetails, 'pendingFields.avatar', null)}>
+                                                        <Avatar
+                                                            imageStyles={[styles.avatarLarge]}
+                                                            source={UserUtils.getAvatar(this.props.currentUserPersonalDetails.avatar, this.props.session.accountID)}
+                                                            size={CONST.AVATAR_SIZE.LARGE}
+                                                        />
+                                                    </OfflineWithFeedback>
+                                                </PressableWithoutFeedback>
+                                            </Tooltip>
                                             <PressableWithoutFeedback
-                                                style={[styles.mb3]}
+                                                style={[styles.mt1, styles.mw100]}
                                                 onPress={this.openProfileSettings}
                                                 accessibilityLabel={this.props.translate('common.profile')}
-                                                accessibilityRole={CONST.ACCESSIBILITY_ROLE.BUTTON}
+                                                accessibilityRole={CONST.ACCESSIBILITY_ROLE.LINK}
                                             >
-                                                <OfflineWithFeedback pendingAction={lodashGet(this.props.currentUserPersonalDetails, 'pendingFields.avatar', null)}>
-                                                    <Avatar
-                                                        imageStyles={[styles.avatarLarge]}
-                                                        source={UserUtils.getAvatar(this.props.currentUserPersonalDetails.avatar, this.props.session.accountID)}
-                                                        size={CONST.AVATAR_SIZE.LARGE}
-                                                    />
-                                                </OfflineWithFeedback>
+                                                <Tooltip text={this.props.translate('common.profile')}>
+                                                    <Text
+                                                        style={[styles.textHeadline, styles.pre]}
+                                                        numberOfLines={1}
+                                                    >
+                                                        {this.props.currentUserPersonalDetails.displayName
+                                                            ? this.props.currentUserPersonalDetails.displayName
+                                                            : this.props.formatPhoneNumber(this.props.session.email)}
+                                                    </Text>
+                                                </Tooltip>
                                             </PressableWithoutFeedback>
-                                        </Tooltip>
-                                        <PressableWithoutFeedback
-                                            style={[styles.mt1, styles.mw100]}
-                                            onPress={this.openProfileSettings}
-                                            accessibilityLabel={this.props.translate('common.profile')}
-                                            accessibilityRole={CONST.ACCESSIBILITY_ROLE.LINK}
-                                        >
-                                            <Tooltip text={this.props.translate('common.profile')}>
+                                            {Boolean(this.props.currentUserPersonalDetails.displayName) && (
                                                 <Text
-                                                    style={[styles.textHeadline, styles.pre]}
+                                                    style={[styles.textLabelSupporting, styles.mt1]}
                                                     numberOfLines={1}
                                                 >
-                                                    {this.props.currentUserPersonalDetails.displayName
-                                                        ? this.props.currentUserPersonalDetails.displayName
-                                                        : this.props.formatPhoneNumber(this.props.session.email)}
+                                                    {this.props.formatPhoneNumber(this.props.session.email)}
                                                 </Text>
-                                            </Tooltip>
-                                        </PressableWithoutFeedback>
-                                        {Boolean(this.props.currentUserPersonalDetails.displayName) && (
-                                            <Text
-                                                style={[styles.textLabelSupporting, styles.mt1]}
-                                                numberOfLines={1}
-                                            >
-                                                {this.props.formatPhoneNumber(this.props.session.email)}
-                                            </Text>
-                                        )}
-                                    </View>
-                                )}
-                                {_.map(this.getDefaultMenuItems(), (item, index) => this.getMenuItem(item, index))}
+                                            )}
+                                        </View>
+                                    )}
+                                    {_.map(this.getDefaultMenuItems(), (item, index) => this.getMenuItem(item, index))}
 
-                                <ConfirmModal
-                                    danger
-                                    title={this.props.translate('common.areYouSure')}
-                                    prompt={this.props.translate('initialSettingsPage.signOutConfirmationText')}
-                                    confirmText={this.props.translate('initialSettingsPage.signOut')}
-                                    cancelText={this.props.translate('common.cancel')}
-                                    isVisible={this.state.shouldShowSignoutConfirmModal}
-                                    onConfirm={() => this.signOut(true)}
-                                    onCancel={() => this.toggleSignoutConfirmModal(false)}
-                                />
-                            </View>
+                                    <ConfirmModal
+                                        danger
+                                        title={this.props.translate('common.areYouSure')}
+                                        prompt={this.props.translate('initialSettingsPage.signOutConfirmationText')}
+                                        confirmText={this.props.translate('initialSettingsPage.signOut')}
+                                        cancelText={this.props.translate('common.cancel')}
+                                        isVisible={this.state.shouldShowSignoutConfirmModal}
+                                        onConfirm={() => this.signOut(true)}
+                                        onCancel={() => this.toggleSignoutConfirmModal(false)}
+                                    />
+                                </View>
+                            </FocusTrap>
                         </ScrollView>
                     </>
                 )}
