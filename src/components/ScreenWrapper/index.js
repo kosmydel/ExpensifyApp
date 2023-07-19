@@ -85,7 +85,6 @@ class ScreenWrapper extends React.Component {
 
         console.log('props', this.props);
         console.log('myRef', this.myRef.current, typeof this.myRef.current);
-        const activeFocusTrap = this.props.shouldEnableFocusTrap && this.myRef.current;
 
         return (
             <SafeAreaConsumer>
@@ -103,10 +102,9 @@ class ScreenWrapper extends React.Component {
 
                     return (
                         <FocusTrap
-                            active={activeFocusTrap}
+                            active={this.props.shouldEnableFocusTrap}
                             focusTrapOptions={{
                                 fallbackFocus: () => this.myRef.current,
-                                delayInitialFocus: true,
                                 clickOutsideDeactivates: true,
                             }}
                         >

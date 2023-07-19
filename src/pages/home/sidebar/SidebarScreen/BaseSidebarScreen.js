@@ -42,6 +42,7 @@ function BaseSidebarScreen(props) {
         <ScreenWrapper
             includeSafeAreaPaddingBottom={false}
             shouldEnableKeyboardAvoidingView={false}
+            shouldEnableFocusTrap={false}
             style={[styles.sidebar, Browser.isMobile() ? styles.userSelectNone : {}]}
         >
             {({insets}) => (

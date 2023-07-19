@@ -41,6 +41,9 @@ const propTypes = {
 
     /** Whether to show offline indicator */
     shouldShowOfflineIndicator: PropTypes.bool,
+
+    /** Whether to enable focus trap */
+    shouldEnableFocusTrap: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -54,6 +57,7 @@ const defaultProps = {
     shouldEnableMaxHeight: false,
     shouldEnablePickerAvoiding: true,
     shouldShowOfflineIndicator: true,
+    shouldEnableFocusTrap: true,
 };
 
 export {propTypes, defaultProps};
