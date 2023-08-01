@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import stylePropTypes from '../../styles/stylePropTypes';
 import {windowDimensionsPropTypes} from '../withWindowDimensions';
 import {environmentPropTypes} from '../withEnvironment';
 
@@ -42,6 +43,9 @@ const propTypes = {
     /** Whether to show offline indicator */
     shouldShowOfflineIndicator: PropTypes.bool,
 
+    /** Styles for the offline indicator */
+    offlineIndicatorStyle: stylePropTypes,
+
     /** Whether to enable focus trap */
     shouldEnableFocusTrap: PropTypes.bool,
 };
@@ -57,6 +61,7 @@ const defaultProps = {
     shouldEnableMaxHeight: false,
     shouldEnablePickerAvoiding: true,
     shouldShowOfflineIndicator: true,
+    offlineIndicatorStyle: [],
     shouldEnableFocusTrap: true,
 };
 
